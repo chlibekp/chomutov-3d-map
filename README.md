@@ -6,6 +6,16 @@ Stylizovaná interaktivní 3D mapa Chomutova, Jirkova a okolí.
 
 ## Spuštění
 
+Vše jedním skriptem (vyžaduje Python 3.11+ a Node.js 18+):
+
+```bash
+./build.sh                    # všechna města: stáhne a zpracuje data, nainstaluje web
+./build.sh velke-mezirici     # jen vybrané město
+./build.sh --serve            # po sestavení spustí server (http://localhost:5173)
+```
+
+### Ručně
+
 Města jsou definovaná v `pipeline/config.py` (`CITIES`: název, bbox, výchozí bod). Město se volí proměnnou `CITY`.
 
 ```bash
