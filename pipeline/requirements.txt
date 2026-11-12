@@ -1,0 +1,7 @@
+numpy
+scipy
+laspy[lazrs]
+shapely
+pyproj
+requests
+pillow

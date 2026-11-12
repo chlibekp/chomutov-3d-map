@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chomutov 3D</title>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="ui">
+    <div class="title">Chomutov · Jirkov <span>3D</span></div>
+    <select id="city" aria-label="Město"></select>
+    <div class="search">
+      <input id="search" type="search" placeholder="Hledat adresu, ulici, místo…  ( / )" autocomplete="off" spellcheck="false" />
+      <ul id="results" hidden></ul>
+    </div>
+    <div class="row">
+      <label>Čas</label>
+      <input id="time" type="range" min="0" max="1" step="0.001" value="0.71" />
+    </div>
+    <div class="row">
+      <button id="labels" class="on">Popisky</button>
+      <button id="shadows" class="on">Stíny</button>
+      <button id="eco" title="30 FPS, nižší rozlišení, bez stínů">Úspora</button>
+    </div>
+    <div class="row">
+      <button id="drive" class="drive">🚗 Řídit auto</button>
+    </div>
+    <div class="help">WASD / šipky posun · Q/E otočení · R/F náklon · Shift rychleji · dvojklik přelet · / hledat</div>
+    <div id="status"></div>
+  </div>
+  <div id="hud" hidden>
+    <div class="street"></div>
+    <div class="dial"><span class="speed">0</span><small>km/h</small><span class="gear">D</span></div>
+    <div class="keys">W/S plyn · brzda · A/D zatáčení · mezerník ruční brzda · Shift rychleji · C kamera · Esc konec</div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
