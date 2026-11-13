@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@500;600&display=swap');
 
-html, body { margin: 0; height: 100%; overflow: hidden; background: #1d2530; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #1d2530; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
 #app { position: fixed; inset: 0; }
 #app canvas { display: block; }
 
@@ -60,7 +60,6 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #1d2530; }
   font-size: 13px; font-weight: 600; padding: 4px 9px; border-radius: 6px; text-shadow: none;
   background: #e3a85c; color: #1d2530; transform: translateY(-140%); box-shadow: 0 2px 8px rgba(0,0,0,.4);
 }
-@media (max-width: 600px) { #ui { left: 16px; right: 16px; min-width: 0; } }
 
 #ui button.drive { background: #2f6f4f; border-color: #3f8f66; color: #eaf6ee; }
 #ui button.drive.on { background: #c2452d; border-color: #c2452d; color: #fff; }
@@ -79,7 +78,6 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #1d2530; }
 #hud small { font-size: 12px; color: #b8b2a4; }
 #hud .gear { margin-left: 10px; font-size: 18px; font-weight: 600; color: #e3a85c; }
 #hud .keys { font-size: 11px; color: #c9c3b6; background: rgba(20,26,34,.5); padding: 3px 10px; border-radius: 6px; }
-@media (max-width: 600px) { #hud .keys { display: none; } }
 
 #city {
   width: 100%; padding: 7px 10px; border-radius: 7px; border: 1px solid #4a5563;
@@ -90,3 +88,61 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #1d2530; }
 }
 #city:focus { border-color: #e3a85c; }
 #city option { background: #1d2530; color: #f2efe8; }
+
+/* ---------------------------------------------------------------- mobil */
+#ui .head { display: flex; align-items: center; gap: 8px; }
+#ui .head .title { flex: 1; }
+#ui #menu { display: none; flex: 0 0 auto; width: 36px; height: 32px; padding: 0; font-size: 18px; line-height: 1; }
+#ui .more { display: contents; }
+#ui .help.touch { display: none; }
+#ui, #pad { touch-action: manipulation; }
+
+@media (hover: none) and (pointer: coarse) {
+  #ui .help.kb, #hud .keys { display: none; }
+  #ui .help.touch { display: block; }
+}
+
+@media (max-width: 600px) {
+  #ui {
+    top: max(10px, env(safe-area-inset-top)); left: max(10px, env(safe-area-inset-left));
+    right: max(10px, env(safe-area-inset-right)); min-width: 0; padding: 10px 12px; gap: 8px;
+    max-height: calc(100dvh - 20px); overflow-y: auto; overscroll-behavior: contain;
+  }
+  #ui #menu { display: block; }
+  #ui .more { display: none; }
+  #ui.open .more { display: contents; }
+  #ui .help { max-width: none; }
+  #ui button { padding: 9px 8px; }
+  #search, #city { font-size: 16px; }          /* iOS jinak při fokusu zoomuje */
+  #results { max-height: 50dvh; }
+  #results li { padding: 9px 8px; }
+  #ui.driving { display: none; }               /* při jízdě jen HUD + ovladače */
+}
+
+#pad {
+  position: fixed; z-index: 21; left: 0; right: 0;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  padding: 0 max(14px, env(safe-area-inset-left)) 0 max(14px, env(safe-area-inset-right));
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 10px;
+  pointer-events: none; user-select: none; -webkit-user-select: none;
+}
+#pad[hidden] { display: none; }
+#pad .cluster, #pad .side { display: flex; gap: 10px; pointer-events: auto; }
+#pad .side {
+  position: fixed; top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right));
+  flex-direction: column; gap: 8px;
+}
+#pad .pbtn {
+  width: 68px; height: 68px; border-radius: 50%;
+  display: grid; place-items: center; font: 600 22px 'Inter Tight', system-ui, sans-serif;
+  color: #f2efe8; background: rgba(20, 26, 34, .6); border: 1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(6px); touch-action: none; -webkit-touch-callout: none; cursor: pointer;
+}
+#pad .pbtn.sm { width: 44px; height: 44px; font-size: 16px; }
+#pad .pbtn.gas { background: rgba(47, 111, 79, .75); border-color: #3f8f66; }
+#pad .pbtn.down { background: #e3a85c; color: #1d2530; border-color: #e3a85c; }
+#hud.touch { bottom: calc(max(14px, env(safe-area-inset-bottom)) + 84px); }
+@media (max-width: 600px) {
+  #hud .speed { font-size: 30px; }
+  #hud .dial { padding: 6px 14px; }
+}

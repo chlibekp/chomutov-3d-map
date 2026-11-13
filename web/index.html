@@ -2,18 +2,26 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1d2530" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
   <title>Chomutov 3D</title>
 </head>
 <body>
   <div id="app"></div>
   <div id="ui">
-    <div class="title">Chomutov · Jirkov <span>3D</span></div>
+    <div class="head">
+      <div class="title">Chomutov · Jirkov <span>3D</span></div>
+      <button id="menu" aria-label="Nastavení" aria-expanded="false">☰</button>
+    </div>
+    <div class="more">
     <select id="city" aria-label="Město"></select>
+    </div>
     <div class="search">
-      <input id="search" type="search" placeholder="Hledat adresu, ulici, místo…  ( / )" autocomplete="off" spellcheck="false" />
+      <input id="search" type="search" placeholder="Hledat adresu, ulici, místo…" autocomplete="off" spellcheck="false" enterkeyhint="search" />
       <ul id="results" hidden></ul>
     </div>
+    <div class="more">
     <div class="row">
       <label>Čas</label>
       <input id="time" type="range" min="0" max="1" step="0.001" value="0.71" />
@@ -26,13 +34,30 @@
     <div class="row">
       <button id="drive" class="drive">🚗 Řídit auto</button>
     </div>
-    <div class="help">WASD / šipky posun · Q/E otočení · R/F náklon · Shift rychleji · dvojklik přelet · / hledat</div>
+    <div class="help kb">WASD / šipky posun · Q/E otočení · R/F náklon · Shift rychleji · dvojklik přelet · / hledat</div>
+    <div class="help touch">1 prst posun · 2 prsty zoom a otočení · dvojí ťuknutí přelet</div>
+    </div>
     <div id="status"></div>
   </div>
   <div id="hud" hidden>
     <div class="street"></div>
     <div class="dial"><span class="speed">0</span><small>km/h</small><span class="gear">D</span></div>
     <div class="keys">W/S plyn · brzda · A/D zatáčení · mezerník ruční brzda · Shift rychleji · C kamera · Esc konec</div>
+  </div>
+  <div id="pad" hidden>
+    <div class="cluster">
+      <div class="pbtn" data-key="ArrowLeft" role="button" aria-label="Vlevo">◀</div>
+      <div class="pbtn" data-key="ArrowRight" role="button" aria-label="Vpravo">▶</div>
+    </div>
+    <div class="side">
+      <div class="pbtn sm" data-act="exit" role="button" aria-label="Ukončit jízdu">✕</div>
+      <div class="pbtn sm" data-act="cam" role="button" aria-label="Kamera">🎥</div>
+      <div class="pbtn sm" data-key="Space" role="button" aria-label="Ruční brzda">P</div>
+    </div>
+    <div class="cluster">
+      <div class="pbtn" data-key="ArrowDown" role="button" aria-label="Brzda / couvání">▼</div>
+      <div class="pbtn gas" data-key="ArrowUp" role="button" aria-label="Plyn">▲</div>
+    </div>
   </div>
   <script type="module" src="/src/main.js"></script>
 </body>

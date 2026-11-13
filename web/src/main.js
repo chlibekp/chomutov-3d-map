@@ -162,6 +162,15 @@ ecoBtn.onclick = () => {
   dpr = maxDpr; renderer.setPixelRatio(dpr);
   invalidate(); shadowDirty = true;
 };
+// mobil: sbalitelný panel
+const ui = document.getElementById('ui');
+const menuBtn = document.getElementById('menu');
+function setMenu(open) {
+  ui.classList.toggle('open', open);
+  menuBtn.setAttribute('aria-expanded', open);
+  menuBtn.textContent = open ? '✕' : '☰';
+}
+menuBtn.onclick = () => setMenu(!ui.classList.contains('open'));
 const timeInput = document.getElementById('time');
 timeInput.oninput = () => setTime(+timeInput.value);
 setTime(+timeInput.value);
@@ -241,8 +250,29 @@ function keyboard(dt) {
 // dvojklik → plynulý přelet na místo
 const ray = new THREE.Raycaster();
 let fly = null;
+let touchFlyAt = -1e9;   // některé mobilní prohlížeče vyvolají i dblclick → nepřeletět dvakrát
 renderer.domElement.addEventListener('dblclick', (e) => {
-  ray.setFromCamera(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), camera);
+  if (e.timeStamp - touchFlyAt > 600) flyToScreen(e.clientX, e.clientY);
+});
+// dotyk: dvojí ťuknutí (dblclick se na mobilech spolehlivě nevyvolá)
+let tapDown = null, lastTap = null;
+renderer.domElement.addEventListener('pointerdown', (e) => {
+  if (e.pointerType !== 'touch') return;
+  tapDown = e.isPrimary ? { x: e.clientX, y: e.clientY, t: e.timeStamp } : null;   // 2. prst = gesto
+});
+renderer.domElement.addEventListener('pointerup', (e) => {
+  if (e.pointerType !== 'touch' || !tapDown) return;
+  const tap = Math.hypot(e.clientX - tapDown.x, e.clientY - tapDown.y) < 12 && e.timeStamp - tapDown.t < 300;
+  tapDown = null;
+  if (!tap) { lastTap = null; return; }
+  if (lastTap && e.timeStamp - lastTap.t < 350 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 40) {
+    lastTap = null;
+    touchFlyAt = e.timeStamp;
+    if (!drive.active) flyToScreen(e.clientX, e.clientY);
+  } else lastTap = { x: e.clientX, y: e.clientY, t: e.timeStamp };
+});
+function flyToScreen(x, y) {
+  ray.setFromCamera(new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1), camera);
   const terr = world.chunks.map((c) => c.terrain).filter(Boolean);
   const hit = ray.intersectObjects(terr, false)[0];
   if (!hit) return;
@@ -253,7 +283,7 @@ renderer.domElement.addEventListener('dblclick', (e) => {
     t0: controls.target.clone(), t1: hit.point.clone(),
     c0: camera.position.clone(), c1: hit.point.clone().addScaledVector(dir, dist),
   };
-});
+}
 function flyTo(point, dist, dur = 1.6) {
   const dir = camera.position.clone().sub(controls.target);
   dir.y = Math.max(dir.y, dir.length() * 0.55);   // pohled šikmo shora
@@ -316,6 +346,31 @@ initSearch((it) => {
 
 const drive = new Drive({ scene, camera, world, uniforms });
 const driveBtn = document.getElementById('drive');
+// dotykové ovládání auta: tlačítka vkládají stejné kódy kláves jako klávesnice
+const pad = document.getElementById('pad');
+const hud = document.getElementById('hud');
+const touchUI = matchMedia('(pointer: coarse)');
+for (const b of pad.querySelectorAll('.pbtn')) {
+  const code = b.dataset.key;
+  const down = (e) => {
+    e.preventDefault();
+    try { b.setPointerCapture(e.pointerId); } catch {}
+    b.classList.add('down');
+    if (code) keys.add(code);
+    else if (b.dataset.act === 'cam') drive.camMode = (drive.camMode + 1) % 3;
+    else if (b.dataset.act === 'exit') stopDrive();
+  };
+  const up = () => { b.classList.remove('down'); if (code) keys.delete(code); };
+  b.addEventListener('pointerdown', down);
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) b.addEventListener(ev, up);
+  b.addEventListener('contextmenu', (e) => e.preventDefault());
+}
+function showPad(on) {
+  pad.hidden = !(on && touchUI.matches);
+  hud.classList.toggle('touch', !pad.hidden);
+  ui.classList.toggle('driving', on);
+  if (!on) keys.clear();
+}
 async function startDrive() {
   fly = null;
   driveBtn.textContent = 'Načítám…';
@@ -324,6 +379,8 @@ async function startDrive() {
   driveBtn.textContent = '✕ Ukončit jízdu';
   driveBtn.classList.add('on');
   driveBtn.blur();
+  setMenu(false);
+  showPad(true);
 }
 function stopDrive() {
   drive.stop();
@@ -333,6 +390,7 @@ function stopDrive() {
   controls.update();
   driveBtn.textContent = '🚗 Řídit auto';
   driveBtn.classList.remove('on');
+  showPad(false);
 }
 driveBtn.onclick = () => (drive.active ? stopDrive() : startDrive());
 
