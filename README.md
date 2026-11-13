@@ -35,6 +35,21 @@ cd ../web && npm install && npm run dev      # město: ?mesto=<id>, nebo výběr
 Nové město přidáš záznamem do `CITIES` a spuštěním tří kroků výše. Ve výběru se objeví automaticky
 (`web/public/data/regions.json`).
 
+## Nasazení (Cloudflare Pages)
+
+Data se generují lokálně (lidar se v CI stahovat nedá), takže se na Pages nahrává hotový `web/dist`
+přímo přes Wrangler, ne přes Git integraci.
+
+```bash
+./build.sh                         # vygeneruje data do web/public/data
+cd web
+npx wrangler login                 # jednou
+npm run deploy                     # vite build + wrangler pages deploy (projekt chomutov-3d-map)
+```
+
+První `deploy` nabídne vytvoření projektu. Nastavení je ve `web/wrangler.toml`, cache hlavičky
+ve `web/public/_headers`. Limity Pages: max. 20 000 souborů a 25 MiB na soubor (nyní ~2 000 souborů, největší ~13 MB).
+
 ## Jak to funguje
 
 - **Terén:** body DMR 5G → TIN interpolace na 2m mřížku → dlaždice 1×1 km (4 m/vrchol), 2 úrovně LOD.

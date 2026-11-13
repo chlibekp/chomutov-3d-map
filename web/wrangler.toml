@@ -1,0 +1,4 @@
+# Cloudflare Pages: nasazení přes `npm run deploy` (data se generují lokálně, viz ../build.sh)
+name = "chomutov-3d-map"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-11-01"
