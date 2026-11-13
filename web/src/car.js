@@ -232,11 +232,16 @@ export class Drive {
     const fwdIn = K('KeyW', 'ArrowUp'), back = K('KeyS', 'ArrowDown');
     const left = K('KeyA', 'ArrowLeft'), right = K('KeyD', 'ArrowRight');
     const hand = K('Space'), boost = K('ShiftLeft', 'ShiftRight');
-    const vmax = boost ? 39 : 25;            // 140 / 90 km/h
+    const VTOP = 300 / 3.6;                  // 300 km/h strop
     let braking = false;
 
-    // podélná dynamika
-    if (fwdIn) this.speed += (this.speed < 0 ? 14 : 6.5 * (1 - this.speed / vmax)) * dt;
+    // podélná dynamika (boost: téměř konstantní tah až k 300 km/h)
+    if (fwdIn) {
+      const thrust = this.speed < 0 ? 14
+        : boost ? 9 * (1 - Math.pow(this.speed / 104, 3))
+        : 6.5 * (1 - this.speed / 25);     // 90 km/h bez boostu
+      this.speed += thrust * dt;
+    }
     if (back) {
       if (this.speed > 0.5) { this.speed -= 14 * dt; braking = true; }
       else this.speed = Math.max(-8, this.speed - 5 * dt);
@@ -244,6 +249,7 @@ export class Drive {
     if (hand) { this.speed *= Math.exp(-dt * 2.5); braking = true; }
     if (!fwdIn && !back) this.speed -= Math.sign(this.speed) * Math.min(Math.abs(this.speed), 1.2 * dt);
     this.speed *= Math.exp(-dt * 0.05);
+    this.speed = Math.min(this.speed, VTOP);
     // mimo silnici pomaleji
     const onRoad = this.nearestStreet(this.pos.x, this.pos.z, 10);
     if (!onRoad && Math.abs(this.speed) > 9) this.speed *= Math.exp(-dt * 0.8);
